@@ -85,3 +85,13 @@ async def test_backtest_all(bot):
     for name in ("sma_rsi", "ema_trend", "supertrend", "macd_trend", "bb_reversion", "breakout", "ensemble"):
         assert name in out
     assert "Buy&hold" in out
+
+
+async def test_autostart_starts_engine_and_state_file_env(bot, monkeypatch, tmp_path):
+    bot.cfg.autostart = True
+    await bot._post_init(None)
+    assert bot.engine.running
+    bot.engine.stop()
+    monkeypatch.setenv("STATE_FILE", str(tmp_path / "x.json"))
+    from tgtrader.config import load_config
+    assert load_config().state_file == str(tmp_path / "x.json")

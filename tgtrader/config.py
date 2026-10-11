@@ -44,6 +44,7 @@ class Config:
     paper_start_balance: float = 1000.0
     poll_seconds: int = 30
     state_file: str = "state.json"
+    autostart: bool = False               # resume automatic trading when the process starts
 
     @property
     def futures(self) -> bool:
@@ -138,6 +139,8 @@ def load_config() -> Config:
         fee_rate=f("FEE_RATE", d.fee_rate), slippage_pct=f("SLIPPAGE_PCT", d.slippage_pct),
         paper_start_balance=f("PAPER_START_BALANCE", d.paper_start_balance),
         poll_seconds=int(e("POLL_SECONDS", d.poll_seconds)),
+        state_file=e("STATE_FILE", d.state_file),
+        autostart=e("AUTOSTART", "false").lower() in ("1", "true", "yes"),
     )
     cfg.validate()
     return cfg

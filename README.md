@@ -56,6 +56,21 @@ Trend followers do badly in sideways markets and the reverter does badly in stro
   Live leverage needs `LIVE_CONFIRM=I_ACCEPT_THE_RISK` **and** `LIVE_LEVERAGE_CONFIRM=I_UNDERSTAND_LIQUIDATION`.
 - Only chat ids in `ALLOWED_CHAT_IDS` can control the bot. Use API keys **without withdrawal rights**.
 
+## Running 24/7
+The bot is a long-running process (polls every `POLL_SECONDS`, keeps state in a file), so it needs an
+always-on host. **Vercel / Netlify / other serverless platforms are not suitable**: functions are killed after seconds,
+there is no persistent disk and no background loop.
+
+Use a small VPS or a container host (Railway, Fly.io, Render background worker, Hetzner/DigitalOcean/Oracle VM…):
+1. Deploy this repo with the included `Dockerfile` (or `pip install -r requirements.txt && python main.py` under systemd/pm2).
+2. Set the variables from `.env.example` in the host's **environment/secrets** settings – never commit `.env`.
+3. Attach a **persistent volume** mounted at `/data` (the Dockerfile sets `STATE_FILE=/data/state.json`);
+   without it the open position and paper balance are lost on every redeploy.
+4. Set `AUTOSTART=true` so trading resumes after a restart, and run exactly **one** instance
+   (two instances with the same token fight over Telegram updates and could double-trade).
+5. Pick a region where your exchange is available (Binance blocks e.g. US IPs). For live trading, whitelist the
+   server's static IP on the API key if the host offers one.
+
 ## Honest limitations
 - The backtester ignores funding fees, partial fills, outages and the daily loss limit, and assumes fills at
   candle open ± slippage. Real results will be worse.

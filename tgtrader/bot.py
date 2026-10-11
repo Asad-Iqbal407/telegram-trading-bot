@@ -65,8 +65,11 @@ class TradingBot:
         self.app.add_handler(CommandHandler("myid", self.myid))
 
     async def _post_init(self, app):
+        if self.cfg.autostart:
+            self.engine.start()
         await self.notify(f"🤖 Bot online: {self.broker.name.upper()} {self.cfg.market_type}, "
-                          f"{self.cfg.timeframe}, {self.cfg.leverage:g}x, {self.engine.strategy.name}. /help")
+                          f"{self.cfg.timeframe}, {self.cfg.leverage:g}x, {self.engine.strategy.name}, "
+                          f"auto-trading {'ON' if self.engine.running else 'OFF (/startbot)'}. /help")
 
     async def notify(self, text: str):
         for chat in self.cfg.allowed_chat_ids:
