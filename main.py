@@ -8,6 +8,7 @@ from tgtrader.strategy import SmaRsiStrategy
 
 def main():
     logging.basicConfig(level=logging.INFO)
+    logging.getLogger("httpx").setLevel(logging.WARNING)  # httpx logs URLs that contain the bot token
     cfg = load_config()
     if not cfg.telegram_token:
         raise SystemExit("Set TELEGRAM_BOT_TOKEN in .env")
